@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       field: 'name'
     },
-    photourl: {
+    photoUrl: {
       type: DataTypes.TEXT,
       allowNull: false,
       field: 'photourl'
