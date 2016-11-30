@@ -11,21 +11,32 @@ exports.get = (req, res) => {
 };
 
 exports.register = (req, res) => {
-  FintUser.build(req.body)
-    .save()
-    .then(another => {
-      res.send('ok');
-    }).catch(err => {
-      console.error(err);
-      res.status(500).send();
-  });
+  if (!req.headers.authentication) res.status(403).send();
+  admin.auth().verifyIdToken(req.headers.authentication)
+    .then(decodedToken => {
+      return decodedToken;
+    })
+    .then(token => {
+      var user = {uid: token.uid, name:token.email, photoUrl: "" };
+      var findorCreateClause = {
+        where: {uid: token.uid},
+        defaults: user
+      };
+      return FintUser.findOrCreate(findorCreateClause);
+    })
+    .then((result) => {
+      var status = result[1] ? 201 : 200;
+      res.status(status).send(result[0]);
+    })
+    .catch(error => {
+      console.error('error:', error);
+      res.status(500).send()
+    });
 };
 
 exports.getGroups = (req, res) => {
   if (!req.params.id) res.status(400).send();
-
   if (!req.headers.authentication) res.status(403).send();
-  console.log(req.headers)
   admin.auth().verifyIdToken(req.headers.authentication)
     .then(decodedToken => {
       res.send(decodedToken);
