@@ -1,8 +1,22 @@
+const enviroment = process.env.NODE_ENV || 'development';
+
+var dbConnection = {};
+if (enviroment === 'production'){
+  // ?
+} else if (enviroment === 'development'){
+  dbConnection = {
+    dbName: 'postgres',
+    user: 'postgres',
+    pw: 'postgres',
+    hostname: 'localhost'
+  };
+}
+
 const Sequelize = require("sequelize");
 
 //  DB connection
-const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
-  host: 'localhost',
+const sequelize = new Sequelize(dbConnection.dbName, dbConnection.user, dbConnection.pw, {
+  host: dbConnection.hostname,
   dialect: 'postgres',
 
   pool: {
