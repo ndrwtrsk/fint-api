@@ -1,57 +1,67 @@
-let {FintUser} = require('../db');
+let {FintUser, PersonalIncome, PersonalIncomeCategory} = require('../db');
 let admin = require('../firebase');
 
-exports.get = (req, res) => {
-  FintUser.findAll().then(users => {
-    res.json(users);
-  }).catch(err => {
-    console.error(err);
-    res.status(500).body(err);
+exports.addIncome = (req, res) => {
+  if (!req.headers.authentication) res.sendStatus(403);
+  var body = req.body;
+  //todo check if category exists
+  admin.auth().verifyIdToken(req.headers.authentication).then(decodedToken => {
+    return FintUser.findById(decodedToken.uid);
+  }).then(user => {
+    if (!user) throw {code: 404, msg: 'user not found'};
+    else {
+      return PersonalIncome.create(
+        {
+          userUid: user.uid,
+          value: body.value,
+          categoryId: body.categoryId,
+          dateTime: new Date()
+        });
+    }
+  }).then(() => {
+    res.send(201);
+  }).catch(error => {
+    console.error('error', error);
+    res.status(error.code).send(error);
   });
 };
 
-exports.register = (req, res) => {
-  if (!req.headers.authentication) res.status(403).send();
-  admin.auth().verifyIdToken(req.headers.authentication)
-    .then(decodedToken => {
-      return decodedToken;
-    })
-    .then(token => {
-      var user = {uid: token.uid, name:token.email, photoUrl: "" };
-      var findorCreateClause = {
-        where: {uid: token.uid},
-        defaults: user
-      };
-      return FintUser.findOrCreate(findorCreateClause);
-    })
-    .then((result) => {
-      var status = result[1] ? 201 : 200;
-      res.status(status).send(result[0]);
-    })
-    .catch(error => {
-      console.error('error:', error);
-      res.status(500).send()
-    });
+exports.addIncomeCategory = (req, res) => {
+  if (!req.headers.authentication) res.sendStatus(403);
+  var body = req.body;
+  admin.auth().verifyIdToken(req.headers.authentication).then(decodedToken => {
+    return FintUser.findById(decodedToken.uid);
+  }).then(user => {
+    if (!user) throw {code: 404, msg: 'user not found'};
+    else {
+      return PersonalIncomeCategory.create(
+        {
+          userUid: user.uid,
+          name: body.name
+        });
+    }
+  }).then(() => {
+    res.send(201);
+  }).catch(error => {
+    console.error('error', error);
+    res.status(error.code).send(error);
+  });
 };
 
-exports.getGroups = (req, res) => {
-  if (!req.params.id) res.status(400).send();
-  if (!req.headers.authentication) res.status(403).send();
-  admin.auth().verifyIdToken(req.headers.authentication)
-    .then(decodedToken => {
-      res.send(decodedToken);
-    })
-    .catch(error => {console.error(error); res.status(500).send()});
-
-  // FintUser.findById(req.params.id)
-  //   .then(user => {
-  //     return user.getFintGroups();
-  //   })
-  //   .then(groups => {
-  //     res.send(groups);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //     res.status(500).send(err);
-  //   });
+exports.test = (req, res) => {
+  FintUser.findById('fyL4ZxcZ3MVoUn4nxXj7WreQ7G').then(user => {
+    if (!user) throw {code: 404, msg: 'user not found'};
+    else {
+      return PersonalIncomeCategory.create(
+        {
+          userUid: user.uid,
+          name: 'best'
+        });
+    }
+  }).then(() => {
+    res.sendStatus(201);
+  }).catch(error => {
+    console.error('error', error);
+    res.status(error.code).send(error);
+  });
 };

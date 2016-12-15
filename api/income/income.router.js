@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
-var controller = require('./fintuser.controller');
+var controller = require('./income.controller');
 
-router.route('/users')
-  .get(controller.get)
-  .post(controller.register);
+router.route('/incomes')
+  .post(controller.addIncome);
 
-router.route('/users/:id')
-  .get(controller.getGroups);
+router.route('/incomes/category')
+  .post(controller.addIncomeCategory);
+
+router.route('/incomes/test')
+  .get(controller.test);
 
 module.exports = router;

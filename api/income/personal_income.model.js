@@ -4,7 +4,7 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('personalIncome', {
     id: {
       type: DataTypes.BIGINT,
-      allowNull: false,
+      allowNull: true,
       primaryKey: true,
       autoIncrement: true,
       field: 'id'
