@@ -4,6 +4,7 @@ var controller = require('./income.controller');
 
 router.route('/incomes')
   .post(controller.addIncome);
+  .get(controller.getIncomes);
 
 router.route('/incomes/category')
   .post(controller.addIncomeCategory);
